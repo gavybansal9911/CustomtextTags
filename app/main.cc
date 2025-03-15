@@ -3,6 +3,7 @@
 #include "ImGUI/imgui.h"
 #include "ImGUI/imgui_impl_glfw.h"
 #include "ImGUI/imgui_impl_opengl3.h"
+#include <chrono>
 
 // OpenGL version
 const char* glsl_version = "#version 330";
@@ -11,6 +12,23 @@ const char* glsl_version = "#version 330";
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void CheckTag(std::string tagName, int tagIntensity, std::string& currentString, std::string& targetString, float& typeSpeed,
+    int& currentIndex) {
+    std::cout << "Tag: " << tagName << std::endl;
+    if (tagName == "clear") {
+        currentString = "";
+    }
+    else if (tagName == "end") {
+        targetString = currentString;
+    }
+    else if (tagName == "speed") {
+        //typeSpeed *= (float)tagIntensity;
+    }
+    else if (tagName == "skip") {
+        currentIndex = currentIndex + tagIntensity;
+    }
 }
 
 int main()
@@ -44,6 +62,16 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
+    std::string targetString = "This is my target<clear> stri<skip:5>ng, This is a veryyyyy looooooooooooooooooooong stringgggggggggggggggggggg";
+    std::string currentString = "";
+    float timeToType = 3.5f;  // 3.5 seconds
+    float typeSpeed = (((float)timeToType) / (float)targetString.length()) * 1000;
+
+    int currentIndex = 0;
+
+    auto startTime = std::chrono::high_resolution_clock::now();
+    bool isTypingString = true;
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -55,16 +83,52 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        if (isTypingString) {
+            if (currentString == targetString) {
+                isTypingString = false;
+                currentIndex = 0;
+                goto SKIP_TYPING;
+            }
+
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            int elapsedTime = (int)std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count(); // Total elapsed time
+            if ((elapsedTime / (1 + currentIndex)) >= typeSpeed) {
+                if (targetString[currentIndex] == '<') {
+                    int l_currentIndex = currentIndex + 1;
+                    std::string tagName = "";
+                    int tagIntensity = (int)'0';
+                    while (targetString[l_currentIndex] != '>') {
+                        if (targetString[l_currentIndex] == ':') {
+                            tagIntensity = (int)targetString[l_currentIndex + 1] - tagIntensity;
+                            l_currentIndex += 2;
+                            continue;
+                        }
+                        tagName += targetString[l_currentIndex];
+                        l_currentIndex++;
+                    }
+                    currentIndex = l_currentIndex + 1;
+                    CheckTag(tagName, tagIntensity, currentString, targetString, typeSpeed, currentIndex);
+                }
+                if (currentIndex >= targetString.length()) {
+                    isTypingString = false;
+                    goto SKIP_TYPING;
+                }
+                currentString += targetString[currentIndex];
+                currentIndex++;
+            }
+        }
+        SKIP_TYPING:
+
         // UI Elements
         static bool show_demo = false;
         static float slider_value = 0.5f;
         static bool checkbox_value = false;
 
-        ImGui::Begin("Hello, ImGui!");
+        ImGui::Begin("Main Window");
         //if (ImGui::Button("Click Me")) {
             //std::cout << "Button Clicked!" << std::endl;
         //}
-        ImGui::Text("Hello, World!");
+        ImGui::Text(currentString.c_str());
         //ImGui::SliderFloat("Slider", &slider_value, 0.0f, 1.0f);
         //ImGui::Checkbox("Checkbox", &checkbox_value);
         ImGui::End();

@@ -14,9 +14,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void CheckTag(std::string tagName, int tagIntensity, std::string& currentString, std::string& targetString, float& typeSpeed,
-    int& currentIndex) {
-    std::cout << "Tag: " << tagName << std::endl;
+void CheckTag(GLFWwindow* window, std::string tagName, int tagIntensity, std::string& currentString, std::string& targetString, float& typeSpeed,
+    int& currentIndex, float& timeToType) {
     if (tagName == "clear") {
         currentString = "";
     }
@@ -24,10 +23,38 @@ void CheckTag(std::string tagName, int tagIntensity, std::string& currentString,
         targetString = currentString;
     }
     else if (tagName == "speed") {
-        //typeSpeed *= (float)tagIntensity;
+        //typeSpeed *= tagIntensity;
     }
     else if (tagName == "skip") {
         currentIndex = currentIndex + tagIntensity;
+    }
+    else if (tagName == "hold") {
+        /*
+        do {
+            std::cout << "Press W Key" << std::endl;
+        } while (glfwGetKey(window, GLFW_KEY_W) != GLFW_PRESS);
+        */
+    }
+    else if (tagName == "back") {
+        /*
+        currentString = currentIndex - tagIntensity;
+        if (currentIndex < 0) {
+            currentIndex = 0;
+        }
+        */
+    }
+    else if (tagName == "wait") {
+        auto start = std::chrono::high_resolution_clock::now();
+        float l_elapsedTime = 0;
+        while ((l_elapsedTime / 1000) < tagIntensity)
+        {
+            //timeToType += tagIntensity;
+            //typeSpeed = (((float)timeToType) / (float)targetString.length()) * 1000;
+            std::cout << "elapsedTime: " << l_elapsedTime << std::endl;
+            auto now = std::chrono::high_resolution_clock::now();
+            l_elapsedTime = (int)std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+        }
+        
     }
 }
 
@@ -62,7 +89,7 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    std::string targetString = "This is my target<clear> stri<skip:5>ng, This is a veryyyyy looooooooooooooooooooong stringgggggggggggggggggggg";
+    std::string targetString = "This is my target<clear> s<speed:5>tri<skip:5>ng, This is a very<wait:5>yyyy looooooo<hold>oooooooooooooong stringggggg<back:9>ggggggggggggggg";
     std::string currentString = "";
     float timeToType = 3.5f;  // 3.5 seconds
     float typeSpeed = (((float)timeToType) / (float)targetString.length()) * 1000;
@@ -107,7 +134,7 @@ int main()
                         l_currentIndex++;
                     }
                     currentIndex = l_currentIndex + 1;
-                    CheckTag(tagName, tagIntensity, currentString, targetString, typeSpeed, currentIndex);
+                    CheckTag(window, tagName, tagIntensity, currentString, targetString, typeSpeed, currentIndex, timeToType);
                 }
                 if (currentIndex >= targetString.length()) {
                     isTypingString = false;

@@ -56,16 +56,17 @@ int main()
         ImGui::NewFrame();
 
         // UI Elements
-        static bool show_demo = true;
+        static bool show_demo = false;
         static float slider_value = 0.5f;
         static bool checkbox_value = false;
 
         ImGui::Begin("Hello, ImGui!");
-        if (ImGui::Button("Click Me")) {
-            std::cout << "Button Clicked!" << std::endl;
-        }
-        ImGui::SliderFloat("Slider", &slider_value, 0.0f, 1.0f);
-        ImGui::Checkbox("Checkbox", &checkbox_value);
+        //if (ImGui::Button("Click Me")) {
+            //std::cout << "Button Clicked!" << std::endl;
+        //}
+        ImGui::Text("Hello, World!");
+        //ImGui::SliderFloat("Slider", &slider_value, 0.0f, 1.0f);
+        //ImGui::Checkbox("Checkbox", &checkbox_value);
         ImGui::End();
 
         if (show_demo) {

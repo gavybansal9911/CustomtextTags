@@ -1,0 +1,3 @@
+C:/Users/gavyb/OneDrive/Desktop/Cpp/CustomTextTags/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/gavyb/OneDrive/Desktop/Cpp/CustomTextTags/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/gavyb/OneDrive/Desktop/Cpp/CustomTextTags/build/app/CMakeFiles/Executable.dir
